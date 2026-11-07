@@ -18,11 +18,7 @@
         <span class="text-2xl">✨</span>
         <span class="font-black text-xl text-amber-600 tracking-tight">Q版人物梗圖庫</span>
       </div>
-      <div class="flex items-center gap-2">
-        <button id="exportDataBtn" onclick="exportCurrentData()" class="inline-flex items-center space-x-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-2xl text-xs font-bold transition" title="複製目前所有資料">
-          <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-          <span>匯出公開資料</span>
-        </button>
+      <div>
         <button id="openCreateFolderBtn" class="inline-flex items-center space-x-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-2xl text-sm font-bold transition shadow-sm">
           <i data-lucide="folder-plus" class="w-4 h-4"></i>
           <span>新增主題資料夾</span>
@@ -38,15 +34,18 @@
     <div id="foldersView">
       <div class="text-center max-w-xl mx-auto mb-8">
         <h1 class="text-3xl sm:text-4xl font-black text-slate-900 mb-2">Q版人物梗圖主題庫</h1>
-        <p class="text-slate-600 text-sm sm:text-base">選擇主題資料夾進入瀏覽，自由下載珍藏的 Q 版梗圖！</p>
+        <p class="text-slate-600 text-sm sm:text-base">選擇一個主題資料夾進入瀏覽，自由下載或投稿珍藏的 Q 版梗圖！</p>
       </div>
 
       <!-- 資料夾網格 -->
-      <div id="foldersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      <div id="foldersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- 由 JS 動態生成 -->
+      </div>
     </div>
 
     <!-- 視圖 2：資料夾內頁 (Folder Detail View) -->
     <div id="detailView" class="hidden">
+      <!-- 頂部導航與管理按鈕 -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-amber-200/60 mb-6">
         <div>
           <button onclick="goToHome()" class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 hover:text-amber-700 bg-amber-100/70 hover:bg-amber-100 px-3 py-1.5 rounded-xl transition mb-3">
@@ -110,12 +109,13 @@
 
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">主題說明</label>
-          <textarea id="folderDescInput" rows="2" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400" placeholder="描述這個主題收錄哪種類型的梗圖..."></textarea>
+          <textarea id="folderDescInput" rows="2" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400" placeholder="簡單描述這個主題收錄哪種類型的梗圖..."></textarea>
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">上傳封面圖片 <span class="font-normal text-slate-400">(選填)</span></label>
+          <label class="block text-xs font-bold text-slate-700 mb-1">上傳封面圖片 <span class="font-normal text-slate-400">(選填，未上傳將使用預設封面)</span></label>
           <input type="file" id="folderCoverInput" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-amber-100 file:text-amber-800 hover:file:bg-amber-200 cursor-pointer">
+          <!-- 封面預覽 -->
           <div id="folderCoverPreviewBox" class="mt-2 hidden items-center gap-2">
             <span class="text-xs text-slate-400">當前封面：</span>
             <img id="folderCoverPreviewImg" src="" class="w-10 h-10 rounded-lg object-cover border border-amber-200">
@@ -170,97 +170,73 @@
 
   <!-- 邏輯腳本 -->
   <script>
+    // 預設封面產生器
     function getDefaultCover(text, bgHex) {
       return `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='220' viewBox='0 0 400 220'><rect width='400' height='220' fill='%23${bgHex}'/><circle cx='200' cy='100' r='45' fill='%23FFF' opacity='0.7'/><text x='200' y='110' font-family='sans-serif' font-size='32' text-anchor='middle'>✨</text><text x='200' y='170' font-family='sans-serif' font-size='18' font-weight='bold' fill='%23333' text-anchor='middle'>${encodeURIComponent(text)}</text></svg>`;
     }
 
-    // 預設資料庫（可替換為 assets/ 檔案路徑）
+    // 初始資料
     const initialData = {
-      "folders": [
+      folders: [
         {
-          "id": "folder-work",
-          "name": "菲比",
-          "description": "菲比啾比梗圖",
-          "coverImage": "assets/feibi.jpg"
+          id: "folder-work",
+          name: "工作厭世系列",
+          description: "上班打工人的真實寫照：週一崩潰、想下班、眼神死。",
+          coverImage: getDefaultCover("工作厭世系列", "FFE082")
         },
         {
-          "id": "folder-cute",
-          "name": "菲八",
-          "description": "菲八啾比梗圖",
-          "coverImage": getDefaultCover("菲八", "C8E6C9")
+          id: "folder-cute",
+          name: "可愛賣萌撒嬌",
+          description: "求人幫忙、討拍拍、裝無辜時最實用的 Q 版表情包。",
+          coverImage: getDefaultCover("可愛賣萌撒嬌", "C8E6C9")
         },
         {
-          "id": "folder-confused",
-          "name": "糯糯",
-          "description": "Q版弗洛洛梗圖",
-          "coverImage": "assets/luoluo.jpg"
+          id: "folder-confused",
+          name: "大大的問號？？",
+          description: "當你完全聽不懂對方在說什麼時專用的疑惑梗圖。",
+          coverImage: getDefaultCover("大大的問號", "E1BEE7")
         }
       ],
-      "images": [
+      images: [
         {
-          "id": "img-1",
-          "folderId": "folder-confused",
-          "title": "完啦",
-          "description": "事情大條啦",
-          "downloadFilename": "wanla.jpg",
-          "imageUrl": "assets/wanla.jpg"
+          id: "img-1",
+          folderId: "folder-work",
+          title: "週一的靈魂出竅",
+          description: "鬧鐘響了，但靈魂還在床上。",
+          downloadFilename: "monday-sleepy.svg",
+          imageUrl: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'><rect width='300' height='200' fill='%23FFF8E7'/><circle cx='150' cy='100' r='50' fill='%23FFD54F'/><circle cx='135' cy='95' r='5' fill='%23333'/><circle cx='165' cy='95' r='5' fill='%23333'/><ellipse cx='150' cy='120' rx='10' ry='15' fill='%23333'/><text x='150' y='175' font-family='sans-serif' font-size='15' font-weight='bold' fill='%23FF6F00' text-anchor='middle'>不想面對週一...</text></svg>"
         },
         {
-          "id": "img-2",
-          "folderId": "folder-confused",
-          "title": "大師",
-          "description": "我悟了",
-          "downloadFilename": "dashi.jpg",
-          "imageUrl": "assets/dashi.jpg"
+          id: "img-2",
+          folderId: "folder-cute",
+          title: "求求了！幫幫我～",
+          description: "閃閃發光的汪汪大眼撒嬌攻擊。",
+          downloadFilename: "please-sparkle.svg",
+          imageUrl: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'><rect width='300' height='200' fill='%23E8F5E9'/><circle cx='150' cy='100' r='50' fill='%23A5D6A7'/><circle cx='135' cy='95' r='10' fill='%231B5E20'/><circle cx='137' cy='93' r='3' fill='%23FFF'/><circle cx='165' cy='95' r='10' fill='%231B5E20'/><circle cx='167' cy='93' r='3' fill='%23FFF'/><text x='150' y='175' font-family='sans-serif' font-size='15' font-weight='bold' fill='%232E7D32' text-anchor='middle'>拜託拜託～！</text></svg>"
         },
         {
-          "id": "img-3",
-          "folderId": "folder-confused",
-          "title": "自豪",
-          "description": "叉會兒腰",
-          "downloadFilename": "zihao.jpg",
-          "imageUrl": "assets/zihao.jpg"
-        },
-        {
-          "id": "img-4",
-          "folderId": "folder-work",
-          "title": "哎呀",
-          "description": "怎麼會這樣",
-          "downloadFilename": "aiya.jpg",
-          "imageUrl": "assets/aiya.jpg"
-        },
-        {
-          "id": "img-5",
-          "folderId": "folder-cute",
-          "title": "求求了！幫幫我～",
-          "description": "閃閃發光的汪汪大眼撒嬌攻擊。",
-          "downloadFilename": "please-sparkle.svg",
-          "imageUrl": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'><rect width='300' height='200' fill='%23E8F5E9'/><circle cx='150' cy='100' r='50' fill='%23A5D6A7'/><circle cx='135' cy='95' r='10' fill='%231B5E20'/><circle cx='137' cy='93' r='3' fill='%23FFF'/><circle cx='165' cy='95' r='10' fill='%231B5E20'/><circle cx='167' cy='93' r='3' fill='%23FFF'/><text x='150' y='175' font-family='sans-serif' font-size='15' font-weight='bold' fill='%232E7D32' text-anchor='middle'>拜託拜託～！</text></svg>"
+          id: "img-3",
+          folderId: "folder-confused",
+          title: "聽君一席話，如聽一席話",
+          description: "完全無法理解主管現在到底在講啥。",
+          downloadFilename: "confused-cat.svg",
+          imageUrl: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'><rect width='300' height='200' fill='%23F3E5F5'/><circle cx='150' cy='100' r='50' fill='%23CE93D8'/><text x='210' y='80' font-family='sans-serif' font-size='28' font-weight='bold' fill='%237B1FA2'>?</text><text x='85' y='90' font-family='sans-serif' font-size='22' font-weight='bold' fill='%237B1FA2'>?</text><text x='150' y='175' font-family='sans-serif' font-size='15' font-weight='bold' fill='%234A148C' text-anchor='middle'>所以...現在要幹嘛？</text></svg>"
         }
       ]
     };
 
-    // 使用更新後的 LocalStorage 鍵名，避免被舊快取干擾
-    let store = JSON.parse(localStorage.getItem('chibi_folder_store_v4')) || initialData;
+    let store = JSON.parse(localStorage.getItem('chibi_folder_store_v2')) || initialData;
     let currentFolderId = null;
 
     function saveStore() {
       try {
-        localStorage.setItem('chibi_folder_store_v4', JSON.stringify(store));
+        localStorage.setItem('chibi_folder_store_v2', JSON.stringify(store));
       } catch (e) {
         console.warn("Storage quota exceeded");
       }
     }
 
-    window.exportCurrentData = function() {
-      const jsonStr = JSON.stringify(store, null, 2);
-      navigator.clipboard.writeText(jsonStr).then(() => {
-        alert("已將目前所有資料夾與梗圖複製到剪貼簿！可將內容替換至 initialData 並推送至 GitHub。");
-      }).catch(() => {
-        prompt("請手動複製以下 JSON 資料：", jsonStr);
-      });
-    };
-
+    // 渲染首頁主題資料夾
     function renderFolders() {
       const grid = document.getElementById('foldersGrid');
       grid.innerHTML = '';
@@ -271,9 +247,10 @@
         card.className = "bg-white border border-amber-100 hover:border-amber-300 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between group";
 
         card.innerHTML = `
+          <!-- 封面點擊進入資料夾 -->
           <div onclick="openFolder('${folder.id}')" class="cursor-pointer">
             <div class="w-full h-40 bg-slate-100 overflow-hidden relative">
-              <img src="${folder.coverImage}" alt="${folder.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'400\\' height=\\'220\\'><rect width=\\'400\\' height=\\'220\\' fill=\\'%23FFE082\\'/><text x=\\'200\\' y=\\'115\\' font-size=\\'32\\' text-anchor=\\'middle\\'>📁</text></svg>'">
+              <img src="${folder.coverImage}" alt="${folder.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
               <span class="absolute top-3 right-3 text-xs font-bold px-2.5 py-1 rounded-full bg-white/90 backdrop-blur text-amber-800 shadow-sm">
                 ${count} 張圖片
               </span>
@@ -288,6 +265,7 @@
             </div>
           </div>
 
+          <!-- 卡片下方管理按鈕列 -->
           <div class="px-5 py-3 border-t border-slate-50 flex items-center justify-between bg-slate-50/50 text-xs">
             <button onclick="openFolder('${folder.id}')" class="font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1">
               <span>進入資料夾</span>
@@ -308,6 +286,7 @@
       lucide.createIcons();
     }
 
+    // 開啟特定主題資料夾
     function openFolder(folderId) {
       currentFolderId = folderId;
       const folder = store.folders.find(f => f.id === folderId);
@@ -323,6 +302,7 @@
       renderImages();
     }
 
+    // 返回首頁
     function goToHome() {
       currentFolderId = null;
       document.getElementById('detailView').classList.add('hidden');
@@ -330,6 +310,7 @@
       renderFolders();
     }
 
+    // 渲染資料夾內梗圖
     function renderImages() {
       const grid = document.getElementById('imagesGrid');
       const emptyState = document.getElementById('emptyFolderState');
@@ -346,13 +327,14 @@
           card.className = "bg-white border border-amber-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative group";
 
           card.innerHTML = `
+            <!-- 刪除單張圖片按鈕 -->
             <button onclick="deleteImage('${img.id}')" class="absolute top-2.5 right-2.5 w-7 h-7 bg-white/90 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-full flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 transition" title="刪除此圖">
               <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
             </button>
 
             <div>
               <div class="w-full h-48 bg-slate-50 overflow-hidden flex items-center justify-center p-3">
-                <img src="${img.imageUrl}" alt="${img.title}" class="max-h-full max-w-full object-contain" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'300\\' height=\\'200\\'><rect width=\\'300\\' height=\\'200\\' fill=\\'%23EEE\\'/><text x=\\'150\\' y=\\'105\\' font-size=\\'14\\' text-anchor=\\'middle\\' fill=\\'%23888\\'>圖片載入中</text></svg>'">
+                <img src="${img.imageUrl}" alt="${img.title}" class="max-h-full max-w-full object-contain">
               </div>
               <div class="p-4">
                 <h4 class="font-extrabold text-slate-900 text-base mb-1">${img.title}</h4>
@@ -373,12 +355,15 @@
       lucide.createIcons();
     }
 
+    // 刪除資料夾（防呆與聯級刪除）
     window.deleteFolder = function(folderId) {
       const folder = store.folders.find(f => f.id === folderId);
       if (!folder) return;
 
-      if (!confirm(`確定要刪除「${folder.name}」資料夾嗎？\n裡面的所有梗圖圖片將會一併被移除！`)) return;
+      const confirmMsg = `確定要刪除「${folder.name}」資料夾嗎？\n⚠️ 裡面的所有梗圖圖片將會一併被移除！`;
+      if (!confirm(confirmMsg)) return;
 
+      // 移除資料夾與內部圖片
       store.folders = store.folders.filter(f => f.id !== folderId);
       store.images = store.images.filter(img => img.folderId !== folderId);
       saveStore();
@@ -394,6 +379,7 @@
       if (currentFolderId) deleteFolder(currentFolderId);
     };
 
+    // 刪除單張圖片
     window.deleteImage = function(imgId) {
       if (!confirm("確定要刪除這張圖片嗎？")) return;
       store.images = store.images.filter(i => i.id !== imgId);
@@ -401,6 +387,7 @@
       renderImages();
     };
 
+    // 下載圖片
     window.downloadImage = function(imgId) {
       const img = store.images.find(i => i.id === imgId);
       if (!img) return;
@@ -419,6 +406,7 @@
         });
     };
 
+    // Modal 與表單邏輯
     const folderModal = document.getElementById('folderModal');
     const imageModal = document.getElementById('uploadImageModal');
 
@@ -460,6 +448,7 @@
       imageModal.classList.add('hidden');
     }
 
+    // 儲存資料夾（新增或修改）
     document.getElementById('folderForm').onsubmit = function(e) {
       e.preventDefault();
       const editId = document.getElementById('folderEditId').value;
@@ -469,6 +458,7 @@
 
       const applyFolderSave = (coverDataUrl) => {
         if (editId) {
+          // 修改現有資料夾
           const folder = store.folders.find(f => f.id === editId);
           if (folder) {
             folder.name = name;
@@ -476,6 +466,7 @@
             if (coverDataUrl) folder.coverImage = coverDataUrl;
           }
         } else {
+          // 新增資料夾
           const newFolder = {
             id: 'folder-' + Date.now(),
             name: name,
@@ -503,6 +494,7 @@
       }
     };
 
+    // 上傳圖片到當前資料夾
     document.getElementById('uploadImageForm').onsubmit = function(e) {
       e.preventDefault();
       const fileInput = document.getElementById('imageFileInput');
@@ -528,6 +520,7 @@
       reader.readAsDataURL(file);
     };
 
+    // 初次載入
     renderFolders();
   </script>
 </body>
