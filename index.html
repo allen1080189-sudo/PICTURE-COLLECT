@@ -179,7 +179,8 @@
     // =========================================================================
     // 🌟 全球公開預設資料庫（任何人、任何裝置打開都看得到這份內容）🌟
     // =========================================================================
-    const initialData = {
+    const initialData = 
+    {
   "folders": [
     {
       "id": "folder-work",
@@ -251,7 +252,7 @@
     }
   ]
 }
-
+   
     let store = JSON.parse(localStorage.getItem('chibi_folder_store_git')) || initialData;
     let currentFolderId = null;
 
