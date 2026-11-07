@@ -17,7 +17,7 @@
 ```json
 {
   "id": "folder-work",
-  "name": "工作厭世系列",
-  "description": "上班打工人的真實寫照",
+  "name": "菲比",
+  "description": "菲比啾比梗圖",
   "coverImage": "圖片 Data URL (Base64) 或 SVG"
 }
